@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const app = express();
@@ -40,15 +40,19 @@ const run = async () => {
         const productCollenction = client.db("digitaz").collection("products");
         const userCollenction = client.db("digitaz").collection("users");
         const reviewCollenction = client.db("digitaz").collection("reviews");
+        const orderCollenction = client.db("digitaz").collection("orders");
 
         app.get('/products', async (req, res) => {
-            const products = await productCollenction.find({}).toArray();
+            const query = {};
+            const products = await productCollenction.find(query).toArray();
             res.send(products)
         })
 
-        app.get('/reviews', async (req, res) => {
-            const products = await reviewCollenction.find({}).toArray();
-            res.send(products)
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const product = await productCollenction.findOne(query)
+            res.send(product)
         })
 
         app.put('/user/:email', async (req, res) => {
@@ -63,6 +67,30 @@ const run = async () => {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '3h' })
             res.send({ result, token });
         });
+
+        app.post('/order', verifyJWT, async (req, res) => {
+            const order = req.body;
+            const result = await orderCollenction.insertOne(order);
+            res.send(result);
+        });
+
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const stock = req.body;
+            const filter = { _id: id };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: stock,
+            };
+            const result = await productCollenction.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const products = await reviewCollenction.find(query).toArray();
+            res.send(products)
+        })
 
     }
     catch {
