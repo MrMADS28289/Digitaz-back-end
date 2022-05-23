@@ -99,6 +99,12 @@ const run = async () => {
             res.send(result);
         });
 
+        app.post('/review', verifyJWT, async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollenction.insertOne(review);
+            res.send(result);
+        });
+
         app.get('/reviews', async (req, res) => {
             const query = {};
             const products = await reviewCollenction.find(query).toArray();
