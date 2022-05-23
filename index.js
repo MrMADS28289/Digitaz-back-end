@@ -42,6 +42,17 @@ const run = async () => {
         const reviewCollenction = client.db("digitaz").collection("reviews");
         const orderCollenction = client.db("digitaz").collection("orders");
 
+        const verifyAdmin = async (req, res, next) => {
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollenction.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                next();
+            }
+            else {
+                res.status(403).send({ message: 'forbidden' });
+            }
+        }
+
         app.get('/products', async (req, res) => {
             const query = {};
             const products = await productCollenction.find(query).toArray();
