@@ -101,7 +101,7 @@ run().catch(console.dir);
 
 
 app.listen(port, () => {
-    console.log('Digitaz server is running in port', port);
+    console.log('Digitaz server wanna run with you in port', port);
 })
 
 app.get('/', (req, res) => {
