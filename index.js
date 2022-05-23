@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -15,8 +16,17 @@ const run = async () => {
     try {
         await client.connect();
         const productCollenction = client.db("digitaz").collection("products");
+        const reviewCollenction = client.db("digitaz").collection("reviews");
 
+        app.get('/products', async (req, res) => {
+            const products = await productCollenction.find({}).toArray();
+            res.send(products)
+        })
 
+        app.get('/reviews', async (req, res) => {
+            const products = await reviewCollenction.find({}).toArray();
+            res.send(products)
+        })
     }
     catch {
         // client.close();
