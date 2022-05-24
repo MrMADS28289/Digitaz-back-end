@@ -6,8 +6,14 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 5000;
 
+const corsConfig = {
+    origin: true,
+    credentials: true,
+}
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsConfig))
+app.options('*', cors(corsConfig))
+
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -78,6 +84,27 @@ const run = async () => {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '3h' })
             res.send({ result, token });
         });
+
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const user = await userCollenction.findOne(filter);
+            res.send(user);
+        });
+
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: profile,
+            };
+            const result = await userCollenction.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+
 
         app.post('/order', verifyJWT, async (req, res) => {
             const order = req.body;
