@@ -119,6 +119,23 @@ const run = async () => {
             res.send(result);
         });
 
+        app.get('/users', async (req, res) => {
+            const query = {};
+            const users = await userCollenction.find(query).toArray();
+            res.send(users)
+        })
+
+        app.put('/users/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const role = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: role
+            }
+            const updatedUser = await userCollenction.updateOne(filter, updatedDoc, options);
+            res.send(updatedUser);
+        })
 
 
         app.post('/order', verifyJWT, async (req, res) => {
