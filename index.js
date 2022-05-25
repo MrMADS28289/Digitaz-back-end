@@ -140,6 +140,25 @@ const run = async () => {
             }
         });
 
+        app.get('/allorders', async (req, res) => {
+            const query = {};
+            const orders = await orderCollenction.find(query).toArray();
+            console.log(orders);
+            res.send(orders)
+        })
+
+        app.patch('/paidorders/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    deleverd: true,
+                }
+            }
+            const updatedOrder = await orderCollenction.updateOne(filter, updatedDoc);
+            res.send(updatedOrder);
+        })
+
         app.get('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
