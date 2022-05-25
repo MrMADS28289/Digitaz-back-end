@@ -207,6 +207,13 @@ const run = async () => {
             res.send(result);
         });
 
+        app.delete('/product/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await productCollenction.deleteOne(filter);
+            res.send(result);
+        })
+
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
             const user = await userCollenction.findOne({ email: email });
